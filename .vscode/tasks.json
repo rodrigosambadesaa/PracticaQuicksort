@@ -33,7 +33,7 @@
             "group": "test"
         },
         {
-            "label": "generate graph",
+            "label": "generate comparative graph",
             "type": "shell",
             "command": "python",
             "args": [

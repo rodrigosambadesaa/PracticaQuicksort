@@ -1,95 +1,108 @@
-# Informe de rendimiento de Quick Sort
+# Informe comparativo de algoritmos de ordenacion en C
 
 ## 1. Objetivo
-Medir el tiempo de ejecucion de Quick Sort sobre vectores de enteros aleatorios y verificar que los resultados son coherentes con la complejidad esperada.
+Ampliar la practica para estudiar y comparar el comportamiento temporal y espacial de cuatro algoritmos de ordenacion sobre el mismo conjunto de datos:
 
-## 2. Correcciones aplicadas
-Se corrigieron varios problemas de la version original:
+- Quick Sort
+- Merge Sort
+- Heap Sort
+- Bubble Sort
 
-- Cabeceras cruzadas y dependencias incorrectas (`quicksort.h` incluia `vectordinamico.h` con errores).
-- Uso inconsistente de tipos opacos (`vectorP` como `void *` en cabecera y como struct en implementacion).
-- Validacion de limites defectuosa en acceso al vector.
-- Implementacion de Quick Sort con limites ambiguos y riesgo de resultados incorrectos.
-- Nombre de archivo de salida incorrecto (`tiemposFibonacciRecursivo.txt`).
-- Falta de validacion de ordenamiento despues de ejecutar Quick Sort.
+## 2. Metodologia experimental
 
-## 3. Estandar de nombres aplicado
-Se normalizaron nombres de archivos y simbolos al estilo C en `snake_case`:
+- Lenguaje: C11.
+- Datos de entrada: vectores de enteros pseudoaleatorios.
+- Tamaños: desde 1000 hasta 20000 elementos, con paso de 1000.
+- Repeticiones: 3 por tamaño y algoritmo.
+- Medida: tiempo de CPU con `clock()` y promedio por algoritmo.
+- Control de calidad: tras cada ejecucion se valida que el vector quede ordenado.
 
-- `vectordinamico.c` -> `vector_dinamico.c`
-- `vectordinamico.h` -> `vector_dinamico.h`
-- `quicksort.c` -> `quick_sort.c`
-- `quicksort.h` -> `quick_sort.h`
-- Funciones: `vector_crear`, `vector_asignar`, `vector_recuperar`, `vector_liberar`, `quick_sort`, etc.
+Para garantizar comparacion justa, en cada repeticion se genera un vector base y se clona para cada algoritmo. Asi todos ordenan exactamente los mismos datos.
 
-## 4. Metodologia
-- Lenguaje: C (C11).
-- Algoritmo: Quick Sort con particion tipo Lomuto.
-- Datos: enteros pseudoaleatorios.
-- Tamano del vector: desde 10,000 hasta 1,000,000 elementos, paso de 10,000.
-- Repeticiones: 3 por cada tamano.
-- Medida de tiempo: `clock()` y promedio en segundos.
-- Verificacion: se comprueba que el vector queda ordenado tras cada ejecucion.
+## 3. Implementacion
 
-## 5. Entorno de ejecucion
-Datos del sistema original de la practica:
+Se implementaron los cuatro algoritmos en C sobre la misma estructura de datos:
 
-- Procesador: AMD FX-6100 Six-Core Processor (3.30 GHz)
-- RAM instalada: 8.00 GB
-- Sistema: 64 bits
+- `quick_sort`: particion de Lomuto, in-place.
+- `merge_sort`: mezcla recursiva con buffer auxiliar.
+- `heap_sort`: construccion de heap maximo y extraccion iterativa.
+- `bubble_sort`: intercambio por pares con corte anticipado si no hay cambios.
 
-## 6. Resultados
-Archivo de resultados:
+## 4. Complejidad teorica
 
-- `tiempos_quick_sort.tsv`
+| Algoritmo   | Tiempo promedio | Peor caso | Memoria extra |
+|-------------|-----------------|-----------|---------------|
+| Quick Sort  | $O(n \log n)$  | $O(n^2)$  | $O(\log n)$ promedio por recursividad |
+| Merge Sort  | $O(n \log n)$  | $O(n \log n)$ | $O(n)$ |
+| Heap Sort   | $O(n \log n)$  | $O(n \log n)$ | $O(1)$ |
+| Bubble Sort | $O(n^2)$        | $O(n^2)$  | $O(1)$ |
 
-Grafica regenerada:
+## 5. Resultados obtenidos
 
-![Grafica de tiempos de Quick Sort](quick_sort_grafica.png)
+Archivo de tiempos generado:
 
-## 7. Analisis
-La curva de tiempos muestra crecimiento monotono con pequenas fluctuaciones, compatibles con:
+- `tiempos_ordenacion.tsv`
 
-- variaciones del planificador del sistema operativo,
-- efectos de cache,
-- ruido de temporizacion.
+Grafica comparativa unica:
 
-El comportamiento global es consistente con un coste promedio de Quick Sort de $O(n \log n)$.
+![Grafica comparativa de algoritmos de ordenacion](grafica_comparativa_ordenacion.png)
+
+Archivo legado mantenido por compatibilidad:
+
+- `tiemposFibonacciRecursivo.txt` (columna de Quick Sort)
+
+## 6. Analisis del comportamiento
+
+Los resultados muestran una separacion clara entre familias de complejidad:
+
+- Quick Sort, Merge Sort y Heap Sort mantienen tiempos bajos y crecimiento suave con el tamaño de entrada, en linea con $O(n \log n)$.
+- Bubble Sort crece mucho mas rapido y domina el tiempo total al aumentar $n$, en linea con $O(n^2)$.
+
+En los tamaños medidos, Quick Sort y Merge Sort suelen presentar mejor tiempo medio que Heap Sort, mientras Bubble Sort queda claramente por detras.
+
+Las pequeñas variaciones locales entre puntos consecutivos son normales y se deben a:
+
+- cambios del planificador del sistema,
+- efectos de cache y jerarquia de memoria,
+- granularidad de la medicion temporal.
+
+## 7. Coste de CPU y memoria
+
+Como alumno, la conclusion principal sobre coste computacional es:
+
+- El coste de CPU queda dominado por la complejidad temporal: Bubble Sort se encarece rapidamente, mientras los otros tres algoritmos escalan mucho mejor.
+- En memoria, Merge Sort paga un coste adicional importante por su buffer auxiliar $O(n)$.
+- Quick Sort y Heap Sort son mas contenidos en memoria auxiliar, aunque Quick Sort depende de la profundidad de recursion.
+
+Por tanto, para conjuntos medianos y grandes:
+
+- Bubble Sort solo tiene sentido didactico.
+- Quick Sort, Merge Sort y Heap Sort son opciones practicas.
+- Si priorizo memoria, Heap Sort es atractivo.
+- Si priorizo estabilidad de ordenacion, Merge Sort es preferible.
 
 ## 8. Reproducibilidad
+
 ### Compilar
+
 ```bash
 gcc -std=c11 -O2 -Wall -Wextra -Wpedantic main.c quick_sort.c vector_dinamico.c -o quick_sort_benchmark.exe
 ```
 
 ### Ejecutar benchmark
+
 ```bash
 ./quick_sort_benchmark.exe
 ```
 
 ### Generar grafica
+
 ```bash
 python generar_grafica.py
 ```
 
-## 9. Conclusiones
-Como alumno, las conclusiones principales que extraigo de esta practica son las siguientes:
+## 9. Conclusiones finales
 
-- El comportamiento experimental de Quick Sort coincide con la teoria en el caso promedio: el tiempo crece de forma cercana a $O(n \log n)$ y no de forma cuadratica en los datos aleatorios medidos.
-- El coste de CPU aumenta de manera clara al crecer $n$, porque el algoritmo realiza comparaciones e intercambios en cada particion y repite este proceso recursivamente sobre subproblemas.
-- Aunque hay pequeñas oscilaciones en la curva, no contradicen el modelo teorico. Se explican por efectos de cache, carga del sistema operativo y precision de la medicion con `clock()`.
+La ampliacion de la practica permite observar con datos reales que la complejidad asintotica no es solo teoria: se refleja de forma directa en el coste de CPU medido. La comparativa en una sola grafica facilita ver la diferencia entre algoritmos eficientes y no eficientes para entradas grandes.
 
-En terminos de complejidad:
-
-- Caso promedio: $O(n \log n)$.
-- Peor caso: $O(n^2)$, por ejemplo si las particiones salen muy desequilibradas.
-- Mejor caso: cercano a $O(n \log n)$ cuando las particiones quedan equilibradas.
-
-En terminos de memoria:
-
-- Quick Sort trabaja "in-place" sobre el vector, por lo que no necesita memoria auxiliar proporcional a $n$.
-- El coste extra principal viene de la recursividad (pila de llamadas): en promedio es $O(\log n)$ y en el peor caso puede llegar a $O(n)$.
-
-Respecto al rendimiento practico, esta implementacion es adecuada para conjuntos grandes de datos aleatorios, pero la eleccion del pivote sigue siendo un punto critico. Si el pivote es malo muchas veces, aumenta tanto el tiempo de CPU como el uso de pila.
-
-Finalmente, tambien concluyo que la calidad de la medicion depende mucho de una implementacion correcta: validar limites, verificar que el vector queda ordenado y generar salidas reproducibles es tan importante como el algoritmo en si para obtener resultados fiables.
+Desde el punto de vista de ingenieria, no existe un algoritmo universalmente mejor en todos los criterios: la seleccion depende del equilibrio entre tiempo, memoria y propiedades extra (como estabilidad). Esta practica consolida precisamente ese criterio de decision.
